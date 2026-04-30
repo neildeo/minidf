@@ -8,4 +8,9 @@ mod tests {
         assert_eq!(name, "minidf");
         assert!(!version.is_empty());
     }
+
+    #[test]
+    fn failing_test() {
+        assert!(false)
+    }
 }
