@@ -30,6 +30,20 @@ impl Column {
         Column::String(data.into_iter().map(Some).collect())
     }
 
+    pub fn int_nullable(data: Vec<Option<i64>>) -> Self {
+        Column::Int(data)
+    }
+
+    pub fn float_nullable(data: Vec<Option<f64>>) -> Self {
+        Column::Float(data)
+    }
+    pub fn bool_nullable(data: Vec<Option<bool>>) -> Self {
+        Column::Bool(data)
+    }
+    pub fn string_nullable(data: Vec<Option<String>>) -> Self {
+        Column::String(data)
+    }
+
     pub fn dtype(&self) -> DataType {
         match self {
             Column::Int(_) => DataType::Int,
