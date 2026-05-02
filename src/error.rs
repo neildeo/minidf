@@ -2,6 +2,7 @@ use std::{error::Error, fmt::Display};
 
 #[derive(Debug, PartialEq)]
 pub enum MiniDfError {
+    InvalidSchema,
     SchemaMismatch,
 }
 
@@ -12,6 +13,7 @@ impl Display for MiniDfError {
                 f,
                 "The provided schema does not match the specified columns."
             ),
+            MiniDfError::InvalidSchema => write!(f, "Schema has duplicated names."),
         }
     }
 }
