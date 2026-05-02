@@ -2,52 +2,79 @@ use std::iter::zip;
 
 use crate::{MiniDfError, Result, column::Column, schema::Schema};
 
+#[derive(Debug)]
 pub struct DataFrame {
     schema: Schema,
     columns: Vec<Column>,
 }
 
-fn validate_schema_and_columns(schema: &Schema, columns: &[Column]) -> bool {
-    [
-        columns_have_equal_length(columns),
-        schema_length_equals_number_of_columns(schema, columns),
-        schema_and_columns_datatypes_match(schema, columns),
-        non_null_columns_have_no_nulls(schema, columns),
-    ]
-    .iter()
-    .all(|x| *x)
-}
-
-fn columns_have_equal_length(columns: &[Column]) -> bool {
+fn columns_have_equal_length(columns: &[Column]) -> Result<()> {
     if columns.is_empty() {
-        return true;
+        return Ok(());
     }
 
     let first_len = columns[0].len();
 
-    columns.iter().all(|c| c.len() == first_len)
+    for (i, c) in columns.iter().enumerate() {
+        if c.len() != first_len {
+            return Err(MiniDfError::ColumnLengthMismatch {
+                column_index: i,
+                expected: first_len,
+                actual: c.len(),
+            });
+        }
+    }
+
+    Ok(())
 }
 
-fn schema_length_equals_number_of_columns(schema: &Schema, columns: &[Column]) -> bool {
-    schema.n_fields() == columns.len()
+fn schema_length_equals_number_of_columns(schema: &Schema, columns: &[Column]) -> Result<()> {
+    if schema.n_fields() != columns.len() {
+        Err(MiniDfError::FieldColumnCountMismatch {
+            fields: schema.n_fields(),
+            columns: columns.len(),
+        })
+    } else {
+        Ok(())
+    }
 }
 
 // Assumes equal lengths due to zip behaviour
-fn schema_and_columns_datatypes_match(schema: &Schema, columns: &[Column]) -> bool {
-    zip(schema.fields(), columns).all(|(f, c)| f.dtype() == c.dtype())
+fn schema_and_columns_datatypes_match(schema: &Schema, columns: &[Column]) -> Result<()> {
+    for (f, c) in zip(schema.fields(), columns) {
+        if f.dtype() != c.dtype() {
+            return Err(MiniDfError::DatatypeMismatch {
+                field_name: f.name().to_string(),
+                expected: f.dtype(),
+                actual: c.dtype(),
+            });
+        }
+    }
+
+    Ok(())
 }
 
 // Assumes equal lengths due to zip behaviour
-fn non_null_columns_have_no_nulls(schema: &Schema, columns: &[Column]) -> bool {
-    zip(schema.fields(), columns).all(|(f, c)| f.nullable() || !c.contains_null())
+fn non_null_columns_have_no_nulls(schema: &Schema, columns: &[Column]) -> Result<()> {
+    for (f, c) in zip(schema.fields(), columns) {
+        if !f.nullable() && c.contains_null() {
+            return Err(MiniDfError::NullabilityViolation {
+                field_name: f.name().to_string(),
+            });
+        }
+    }
+
+    Ok(())
 }
 
 impl DataFrame {
     pub fn new(schema: Schema, columns: Vec<Column>) -> Result<Self> {
-        match validate_schema_and_columns(&schema, &columns) {
-            true => Ok(DataFrame { schema, columns }),
-            false => Err(MiniDfError::SchemaMismatch),
-        }
+        columns_have_equal_length(&columns)?;
+        schema_length_equals_number_of_columns(&schema, &columns)?;
+        schema_and_columns_datatypes_match(&schema, &columns)?;
+        non_null_columns_have_no_nulls(&schema, &columns)?;
+
+        Ok(DataFrame { schema, columns })
     }
 
     pub fn is_empty(&self) -> bool {

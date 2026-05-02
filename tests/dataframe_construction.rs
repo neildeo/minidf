@@ -31,7 +31,15 @@ fn errors_on_mismatched_schema_and_columns_length() {
 
     let maybe_df = DataFrame::new(schema, vec![Column::int(col_1)]);
 
-    assert!(maybe_df.is_err_and(|e| e == MiniDfError::SchemaMismatch))
+    assert!(maybe_df.is_err_and(|e| {
+        matches!(
+            e,
+            MiniDfError::FieldColumnCountMismatch {
+                fields: 2,
+                columns: 1
+            }
+        )
+    }))
 }
 
 #[test]
@@ -47,7 +55,16 @@ fn errors_on_mismatched_schema_and_columns_dtypes() {
 
     let maybe_df = DataFrame::new(schema, vec![Column::float(col_1), Column::string(col_2)]);
 
-    assert!(maybe_df.is_err_and(|e| e == MiniDfError::SchemaMismatch))
+    assert!(maybe_df.is_err_and(|e| {
+        matches!(
+            e,
+            MiniDfError::DatatypeMismatch {
+                field_name,
+                expected: DataType::Int,
+                actual: DataType::Float
+            } if field_name == "col_1"
+        )
+    }))
 }
 
 #[test]
@@ -63,7 +80,16 @@ fn errors_on_unequal_column_lengths() {
 
     let maybe_df = DataFrame::new(schema, vec![Column::float(col_1), Column::string(col_2)]);
 
-    assert!(maybe_df.is_err_and(|e| e == MiniDfError::SchemaMismatch))
+    assert!(maybe_df.is_err_and(|e| {
+        matches!(
+            e,
+            MiniDfError::ColumnLengthMismatch {
+                column_index: 1,
+                expected: 3,
+                actual: 2
+            }
+        )
+    }))
 }
 
 #[test]
@@ -73,14 +99,19 @@ fn errors_duplicate_column_names() {
         Field::new("col_1", DataType::String, false),
     ]);
 
-    assert!(schema.is_err_and(|e| e == MiniDfError::InvalidSchema))
+    assert!(schema.is_err_and(|e| {
+        matches!(
+            e,
+            MiniDfError::InvalidSchema { duplicate_name } if duplicate_name == "col_1"
+        )
+    }))
 }
 
 #[test]
 fn errors_on_null_in_non_nullable_field() {
     let schema = Schema::new(vec![
-        Field::new("col_1", DataType::Int, true),
-        Field::new("col_2", DataType::String, false),
+        Field::new("col_1", DataType::Float, true),
+        Field::new("col_2", DataType::Bool, false),
     ])
     .expect("Schema should be valid");
 
@@ -92,5 +123,12 @@ fn errors_on_null_in_non_nullable_field() {
         vec![Column::float_nullable(col_1), Column::bool_nullable(col_2)],
     );
 
-    assert!(maybe_df.is_err_and(|e| e == MiniDfError::SchemaMismatch))
+    assert!(maybe_df.is_err_and(|e| {
+        matches!(
+            e,
+            MiniDfError::NullabilityViolation {
+                field_name
+            } if field_name == "col_2"
+        )
+    }))
 }

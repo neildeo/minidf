@@ -4,6 +4,7 @@ use crate::MiniDfError;
 use crate::column::DataType;
 use crate::error::Result;
 
+#[derive(Debug)]
 pub struct Field {
     column_name: String,
     datatype: DataType,
@@ -19,6 +20,10 @@ impl Field {
         }
     }
 
+    pub fn name(&self) -> &str {
+        &self.column_name
+    }
+
     pub fn dtype(&self) -> DataType {
         self.datatype
     }
@@ -28,30 +33,31 @@ impl Field {
     }
 }
 
-fn unique_fields(fields: &Vec<Field>) -> bool {
+fn unique_fields(fields: &Vec<Field>) -> Result<()> {
     let mut field_set = HashSet::new();
 
     for field in fields {
         if field_set.contains(&field.column_name) {
-            return false;
+            return Err(MiniDfError::InvalidSchema {
+                duplicate_name: field.column_name.clone(),
+            });
         }
 
         field_set.insert(field.column_name.clone());
     }
 
-    true
+    Ok(())
 }
 
+#[derive(Debug)]
 pub struct Schema {
     fields: Vec<Field>,
 }
 
 impl Schema {
     pub fn new(fields: Vec<Field>) -> Result<Self> {
-        match unique_fields(&fields) {
-            true => Ok(Schema { fields }),
-            false => Err(MiniDfError::InvalidSchema),
-        }
+        unique_fields(&fields)?;
+        Ok(Schema { fields })
     }
 
     pub fn len(&self) -> usize {
@@ -78,13 +84,13 @@ mod tests {
     #[test]
     fn empty_schema_is_valid() {
         let fields = vec![];
-        assert!(unique_fields(&fields))
+        assert!(unique_fields(&fields).is_ok())
     }
 
     #[test]
     fn single_field_schema_is_valid() {
         let fields = vec![Field::new("col_1", DataType::Bool, false)];
-        assert!(unique_fields(&fields))
+        assert!(unique_fields(&fields).is_ok())
     }
 
     #[test]
@@ -93,7 +99,7 @@ mod tests {
             Field::new("col_1", DataType::Bool, false),
             Field::new("col_2", DataType::Int, false),
         ];
-        assert!(unique_fields(&fields))
+        assert!(unique_fields(&fields).is_ok())
     }
 
     #[test]
@@ -102,6 +108,13 @@ mod tests {
             Field::new("col_1", DataType::Bool, false),
             Field::new("col_1", DataType::Int, false),
         ];
-        assert!(!unique_fields(&fields))
+        assert!(unique_fields(&fields).is_err_and(|e| {
+            matches!(
+                e,
+                MiniDfError::InvalidSchema {
+                    duplicate_name
+                } if duplicate_name == "col_1"
+            )
+        }))
     }
 }

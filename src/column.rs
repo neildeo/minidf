@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DataType {
     Int,
     Float,
@@ -6,6 +6,7 @@ pub enum DataType {
     String,
 }
 
+#[derive(Debug)]
 pub enum Column {
     Int(Vec<Option<i64>>),
     Float(Vec<Option<f64>>),
