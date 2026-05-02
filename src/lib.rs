@@ -1,3 +1,8 @@
+mod column;
+mod dataframe;
+mod error;
+mod schema;
+
 #[cfg(test)]
 mod tests {
     #[test]
