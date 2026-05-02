@@ -3,6 +3,11 @@ mod dataframe;
 mod error;
 mod schema;
 
+pub use column::{Column, DataType};
+pub use dataframe::DataFrame;
+pub use error::{MiniDfError, Result};
+pub use schema::{Field, Schema};
+
 #[cfg(test)]
 mod tests {
     #[test]

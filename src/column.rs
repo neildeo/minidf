@@ -17,6 +17,10 @@ impl Column {
         todo!("Constructor for a column");
     }
 
+    pub fn from_vec<T>(data: Vec<T>) -> Self {
+        todo!("Construct a column from a (non-null) Rust Vec");
+    }
+
     pub fn dtype(&self) -> DataType {
         todo!("Return column's data type");
     }
