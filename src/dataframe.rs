@@ -14,7 +14,7 @@ use crate::{MiniDfError, Result, column::Column, schema::Schema};
 ///
 /// Dataframe construction enforces the core invariants connecting schema
 /// metadata to physical column storage.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DataFrame {
     schema: Schema,
     columns: Vec<Column>,
@@ -117,5 +117,15 @@ impl DataFrame {
     /// Returns the number of columns in the dataframe.
     pub fn width(&self) -> usize {
         self.schema.len()
+    }
+
+    /// Returns a new dataframe consisting of the first `n` rows of the original dataframe.
+    pub fn head(&self, n: usize) -> Self {
+        todo!()
+    }
+
+    /// Returns a new dataframe consisting of the last `n` rows of the original dataframe.
+    pub fn tail(&self, n: usize) -> Self {
+        todo!()
     }
 }
