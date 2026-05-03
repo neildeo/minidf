@@ -1,9 +1,21 @@
+//! Schema representation.
+//!
+//! A schema is an ordered collection of fields describing the columns of a
+//! dataframe.
+//!
+//! The schema owns metadata such as names, declared data types, and declared
+//! nullability. It does not own column data.
+
 use std::collections::HashSet;
 
 use crate::MiniDfError;
 use crate::column::DataType;
 use crate::error::Result;
 
+/// Metadata describing one dataframe column.
+///
+/// A field contains the column name, declared data type, and declared
+/// nullability. It describes a column by position within a dataframe schema.
 #[derive(Debug)]
 pub struct Field {
     column_name: String,
@@ -12,6 +24,7 @@ pub struct Field {
 }
 
 impl Field {
+    /// Constructs a new field definition.
     pub fn new(column_name: &str, datatype: DataType, nullable: bool) -> Self {
         Field {
             column_name: column_name.to_string(),
@@ -20,14 +33,17 @@ impl Field {
         }
     }
 
+    /// Returns the field name
     pub fn name(&self) -> &str {
         &self.column_name
     }
 
+    /// Returns the declared data type of the field.
     pub fn dtype(&self) -> DataType {
         self.datatype
     }
 
+    /// Returns `true` if the field permits null values.
     pub fn nullable(&self) -> bool {
         self.nullable
     }
@@ -49,29 +65,36 @@ fn unique_fields(fields: &Vec<Field>) -> Result<()> {
     Ok(())
 }
 
+/// An ordered collection of dataframe fields.
+///
+/// The order of fields defines the order of dataframe columns. Field names
+/// must be unique.
 #[derive(Debug)]
 pub struct Schema {
     fields: Vec<Field>,
 }
 
 impl Schema {
+    /// Constructs a schema from an ordered collection of fields.
+    ///
+    /// Returns an error if the schema violates schema-level invariants, such as
+    /// duplicate field names.
     pub fn new(fields: Vec<Field>) -> Result<Self> {
         unique_fields(&fields)?;
         Ok(Schema { fields })
     }
 
+    /// Returns the number of fields in the schema.
     pub fn len(&self) -> usize {
         self.fields.len()
     }
 
+    /// Returns `true` if the schema contains no fields
     pub fn is_empty(&self) -> bool {
         self.fields.is_empty()
     }
 
-    pub fn n_fields(&self) -> usize {
-        self.fields.len()
-    }
-
+    /// Returns the ordered fields in the schema.
     pub fn fields(&self) -> &[Field] {
         &self.fields
     }

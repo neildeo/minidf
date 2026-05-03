@@ -1,7 +1,10 @@
+//! Error types used by the crate.
+
 use std::{error::Error, fmt::Display};
 
 use crate::DataType;
 
+/// Error type for dataframe construction and validation failures.
 #[derive(Debug, PartialEq)]
 pub enum MiniDfError {
     InvalidSchema {
@@ -64,4 +67,5 @@ impl Display for MiniDfError {
 
 impl Error for MiniDfError {}
 
+/// Crate-local result type using [`MinidfError`].
 pub type Result<T> = std::result::Result<T, MiniDfError>;
