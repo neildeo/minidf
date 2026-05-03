@@ -16,7 +16,7 @@ use crate::error::Result;
 ///
 /// A field contains the column name, declared data type, and declared
 /// nullability. It describes a column by position within a dataframe schema.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Field {
     column_name: String,
     datatype: DataType,
@@ -69,7 +69,7 @@ fn unique_fields(fields: &Vec<Field>) -> Result<()> {
 ///
 /// The order of fields defines the order of dataframe columns. Field names
 /// must be unique.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Schema {
     fields: Vec<Field>,
 }

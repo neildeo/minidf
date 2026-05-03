@@ -14,7 +14,7 @@ use crate::{MiniDfError, Result, column::Column, schema::Schema};
 ///
 /// Dataframe construction enforces the core invariants connecting schema
 /// metadata to physical column storage.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DataFrame {
     schema: Schema,
     columns: Vec<Column>,
@@ -117,5 +117,59 @@ impl DataFrame {
     /// Returns the number of columns in the dataframe.
     pub fn width(&self) -> usize {
         self.schema.len()
+    }
+
+    /// Returns a new dataframe containing the first `n` rows.
+    ///
+    /// If `n` is greater than the dataframe height, all rows are returned.
+    /// If `n` is zero, a zero-row dataframe with the same schema is returned.
+    ///
+    /// This method preserves:
+    ///
+    /// - column order
+    /// - row order
+    /// - schema metadata
+    /// - null values
+    ///
+    /// The returned dataframe owns its data, cloned from the original dataframe.
+    pub fn head(&self, n: usize) -> Self {
+        let out_schema = self.schema().clone();
+
+        let effective_n = n.min(self.height());
+
+        let out_columns: Vec<Column> = self
+            .columns
+            .iter()
+            .map(|c| c.take_rows(0, effective_n))
+            .collect();
+
+        DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
+    }
+
+    /// Returns a new dataframe containing the last `n` rows.
+    ///
+    /// If `n` is greater than the dataframe height, all rows are returned.
+    /// If `n` is zero, a zero-row dataframe with the same schema is returned.
+    ///
+    /// This method preserves:
+    ///
+    /// - column order
+    /// - row order
+    /// - schema metadata
+    /// - null values
+    ///
+    /// The returned dataframe owns its data, cloned from the original dataframe.
+    pub fn tail(&self, n: usize) -> Self {
+        let out_schema = self.schema().clone();
+
+        let effective_n = n.min(self.height());
+
+        let out_columns: Vec<Column> = self
+            .columns
+            .iter()
+            .map(|c| c.take_rows(self.height() - effective_n, effective_n))
+            .collect();
+
+        DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
     }
 }

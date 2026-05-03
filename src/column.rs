@@ -24,7 +24,7 @@ pub enum DataType {
 /// schema field.
 ///
 /// Null values are represented using `Option<T>` within each column variant.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Column {
     Int(Vec<Option<i64>>),
     Float(Vec<Option<f64>>),
@@ -147,6 +147,47 @@ impl Column {
             Column::Float(items) => items.iter().filter(|x| x.is_none()).count(),
             Column::Bool(items) => items.iter().filter(|x| x.is_none()).count(),
             Column::String(items) => items.iter().filter(|x| x.is_none()).count(),
+        }
+    }
+
+    /// Returns a new column containing a contiguous subset of rows.
+    ///
+    /// The returned column owns its data and preserves:
+    ///
+    /// - data type
+    /// - value order
+    /// - null values and their positions
+    ///
+    /// This is a low-level, crate-internal primitive used by higher-level
+    /// dataframe operations such as `head` and `tail`.
+    ///
+    /// # Parameters
+    ///
+    /// - `start`: the starting row index (inclusive)
+    /// - `n`: the number of rows to take
+    ///
+    /// Conceptually, this returns the column slice:
+    ///
+    /// ```text
+    /// self[start .. start + n]
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// This method panics if the requested slice is out of bounds, i.e. if:
+    ///
+    /// - `start > self.len()`, or
+    /// - `start + n > self.len()`
+    ///
+    /// Callers are expected to validate or clamp indices before calling this
+    /// method. In particular, public dataframe APIs such as `head` and `tail`
+    /// must ensure that only valid slice ranges are passed.
+    pub(crate) fn take_rows(&self, start: usize, n: usize) -> Self {
+        match self {
+            Column::Int(items) => Column::int_nullable(items[start..start + n].to_vec()),
+            Column::Float(items) => Column::float_nullable(items[start..start + n].to_vec()),
+            Column::Bool(items) => Column::bool_nullable(items[start..start + n].to_vec()),
+            Column::String(items) => Column::string_nullable(items[start..start + n].to_vec()),
         }
     }
 }
