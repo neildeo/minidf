@@ -21,14 +21,14 @@ pub fn sample_dataframe(non_empty: bool) -> DataFrame {
     let columns = if non_empty {
         vec![
             Column::int(vec![1, 2, 3, 4, 5]),
-            Column::string(vec![
-                String::from("Adam"),
-                String::from("Bob"),
-                String::from("Carol"),
-                String::from("Dan"),
-                String::from("Evie"),
+            Column::string_nullable(vec![
+                Some(String::from("Adam")),
+                None,
+                Some(String::from("Carol")),
+                Some(String::from("Dan")),
+                Some(String::from("Evie")),
             ]),
-            Column::bool(vec![false, false, true, false, true]),
+            Column::bool_nullable(vec![Some(false), Some(false), Some(true), None, Some(true)]),
         ]
     } else {
         vec![

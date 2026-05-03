@@ -8,14 +8,14 @@ use minidf::{Column, DataFrame, Schema};
 fn head_and_tail_on_regular_dataframe() {
     let head_target_columns = vec![
         Column::int(vec![1, 2]),
-        Column::string(vec![String::from("Adam"), String::from("Bob")]),
+        Column::string_nullable(vec![Some(String::from("Adam")), None]),
         Column::bool(vec![false, false]),
     ];
 
     let tail_target_columns = vec![
         Column::int(vec![4, 5]),
         Column::string(vec![String::from("Dan"), String::from("Evie")]),
-        Column::bool(vec![false, true]),
+        Column::bool_nullable(vec![None, Some(true)]),
     ];
 
     let main_df = sample_dataframe(true);
