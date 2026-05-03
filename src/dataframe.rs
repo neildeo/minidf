@@ -3,7 +3,7 @@
 //! A dataframe pairs a schema with an ordered collection of nameless columns.
 //! The schema fields and columns are matched by position.
 
-use std::iter::zip;
+use std::{fmt::Display, iter::zip};
 
 use crate::{MiniDfError, Result, column::Column, schema::Schema};
 
@@ -171,5 +171,11 @@ impl DataFrame {
             .collect();
 
         DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
+    }
+}
+
+impl Display for DataFrame {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
