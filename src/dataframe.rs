@@ -97,6 +97,11 @@ impl DataFrame {
         Ok(DataFrame { schema, columns })
     }
 
+    /// Returns the dataframe's schema.
+    pub fn schema(&self) -> &Schema {
+        &self.schema
+    }
+
     /// Returns the number of rows in the dataframe.
     ///
     /// The height is derived from column length. A dataframe with no columns
