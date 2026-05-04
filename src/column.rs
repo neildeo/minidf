@@ -196,9 +196,7 @@ impl Column {
             Column::Int(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
             Column::Float(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
             Column::Bool(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
-            Column::String(items) => items[index]
-                .clone()
-                .map_or("null".to_string(), |x| x.to_string()),
+            Column::String(items) => items[index].clone().map_or("null".to_string(), |x| x),
         }
     }
 }
