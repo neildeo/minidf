@@ -190,4 +190,34 @@ impl Column {
             Column::String(items) => Column::string_nullable(items[start..start + n].to_vec()),
         }
     }
+
+    /// Return the column value at `index` formatted for dataframe display.
+    ///
+    /// Null values are rendered as `null`. String values longer than 20 bytes
+    /// are truncated to the first 17 Unicode scalar values and suffixed with
+    /// `"..."`.
+    ///
+    /// # Parameters
+    ///
+    /// - `index`: the index (i.e. row number) of the value to take
+    ///
+    /// # Panics
+    ///
+    /// This function panics if an out-of-bounds index is passed. Callers are
+    /// responsible for validating bounds before calling this method.
+    pub(crate) fn get_formatted_value(&self, index: usize) -> String {
+        match self {
+            Column::Int(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::Float(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::Bool(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::String(items) => {
+                let fmt_str = items[index].clone().map_or("null".to_string(), |x| x);
+                if fmt_str.chars().count() > 20 {
+                    fmt_str.chars().take(17).collect::<String>() + "..."
+                } else {
+                    fmt_str
+                }
+            }
+        }
+    }
 }
