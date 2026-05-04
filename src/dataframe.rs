@@ -176,6 +176,37 @@ impl DataFrame {
 
 impl Display for DataFrame {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        let h = self.height();
+        let w = self.width();
+        writeln!(f, "shape: ({}, {})", h, w)?;
+
+        // Headers
+        if !self.schema().is_empty() {
+            writeln!(
+                f,
+                "{}",
+                self.schema()
+                    .fields()
+                    .iter()
+                    .fold("".to_string(), |acc, x| { acc + &x.to_string() + " | " })
+                    .trim_end_matches(" | ") // Trim off final separator
+            )?;
+        }
+
+        // Data
+        for i in 0..h {
+            writeln!(
+                f,
+                "{}",
+                self.columns
+                    .iter()
+                    .fold("".to_string(), |acc, c| {
+                        acc + c.get_formatted_value(i).as_str() + " | "
+                    })
+                    .trim_end_matches(" | ") // Trim off final separator
+            )?;
+        }
+
+        Ok(())
     }
 }

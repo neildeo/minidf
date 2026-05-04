@@ -190,4 +190,15 @@ impl Column {
             Column::String(items) => Column::string_nullable(items[start..start + n].to_vec()),
         }
     }
+
+    pub(crate) fn get_formatted_value(&self, index: usize) -> String {
+        match self {
+            Column::Int(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::Float(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::Bool(items) => items[index].map_or("null".to_string(), |x| x.to_string()),
+            Column::String(items) => items[index]
+                .clone()
+                .map_or("null".to_string(), |x| x.to_string()),
+        }
+    }
 }

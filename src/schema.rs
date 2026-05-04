@@ -7,6 +7,7 @@
 //! nullability. It does not own column data.
 
 use std::collections::HashSet;
+use std::fmt::Display;
 
 use crate::MiniDfError;
 use crate::column::DataType;
@@ -46,6 +47,21 @@ impl Field {
     /// Returns `true` if the field permits null values.
     pub fn nullable(&self) -> bool {
         self.nullable
+    }
+}
+
+impl Display for Field {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:", self.name())?;
+        let type_str = match self.dtype() {
+            DataType::Int => "Int",
+            DataType::Float => "Float",
+            DataType::Bool => "Bool",
+            DataType::String => "String",
+        };
+        write!(f, "{type_str}")?;
+        let nullable_str = if self.nullable() { "?" } else { "!" };
+        write!(f, "{nullable_str}")
     }
 }
 
