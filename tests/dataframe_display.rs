@@ -63,7 +63,7 @@ fn long_string_values_are_truncated() {
 
     let rendered_df = df.to_string();
     let target = String::from(
-        "shape: (0, 3)\n\
+        "shape: (2, 3)\n\
         id:Int! | name:String? | is_important:Bool?\n\
         1 | A very long name ... | true\n\
         2 | A shorter name | false\n",
