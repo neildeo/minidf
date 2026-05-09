@@ -102,7 +102,7 @@ fn errors_duplicate_column_names() {
     assert!(schema.is_err_and(|e| {
         matches!(
             e,
-            MiniDfError::InvalidSchema { duplicate_name } if duplicate_name == "col_1"
+            MiniDfError::DuplicateColumnName { duplicate_name } if duplicate_name == "col_1"
         )
     }))
 }

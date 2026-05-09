@@ -7,7 +7,7 @@ use crate::DataType;
 /// Error type for dataframe construction and validation failures.
 #[derive(Debug, PartialEq)]
 pub enum MiniDfError {
-    InvalidSchema {
+    DuplicateColumnName {
         duplicate_name: String,
     },
     FieldColumnCountMismatch {
@@ -27,12 +27,16 @@ pub enum MiniDfError {
     NullabilityViolation {
         field_name: String,
     },
+    ColumnNotFound {
+        name: String,
+    },
+    EmptyColumnSelection,
 }
 
 impl Display for MiniDfError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MiniDfError::InvalidSchema { duplicate_name } => write!(
+            MiniDfError::DuplicateColumnName { duplicate_name } => write!(
                 f,
                 "Schema has multiple fields with the same name: {}",
                 duplicate_name
@@ -61,6 +65,8 @@ impl Display for MiniDfError {
                 f,
                 "Field {field_name} is declared as non-null but the provided column contains null values"
             ),
+            MiniDfError::ColumnNotFound { name } => write!(f, "Column {name} does not exist"),
+            MiniDfError::EmptyColumnSelection => write!(f, "Cannot select zero columns"),
         }
     }
 }

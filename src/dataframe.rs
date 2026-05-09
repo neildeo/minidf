@@ -14,7 +14,7 @@ use crate::{MiniDfError, Result, column::Column, schema::Schema};
 ///
 /// Dataframe construction enforces the core invariants connecting schema
 /// metadata to physical column storage.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DataFrame {
     schema: Schema,
     columns: Vec<Column>,
@@ -171,6 +171,61 @@ impl DataFrame {
             .collect();
 
         DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
+    }
+
+    /// Return a new dataframe containing the requested columns.
+    ///
+    /// Columns are selected by name from any iterable collection of string-like
+    /// values, and appear in the output dataframe in the order requested by the
+    /// caller. The original dataframe is not modified.
+    ///
+    /// The returned dataframe owns its schema and columns. Selected fields preserve
+    /// their dtype and nullability metadata, and selected columns preserve their
+    /// values.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MiniDfError::EmptyColumnSelection`] if no columns are requested.
+    ///
+    /// Returns [`MiniDfError::ColumnNotFound`] if any requested column name does
+    /// not exist in the input dataframe.
+    ///
+    /// Returns [`MiniDfError::DuplicateColumnName`] if the requested columns would
+    /// produce duplicate names in the output dataframe.
+    pub fn select(&self, columns: impl IntoIterator<Item = impl AsRef<str>>) -> Result<DataFrame> {
+        // Build schema for output dataframe
+        let input_schema = self.schema();
+
+        let (output_fields, output_indices) = columns
+            .into_iter()
+            .map(|n| {
+                input_schema
+                    .get_field(n.as_ref())
+                    .map(|(f, i)| (f.clone(), i))
+            })
+            .collect::<Result<(Vec<_>, Vec<_>)>>()?;
+
+        if output_fields.is_empty() {
+            return Err(MiniDfError::EmptyColumnSelection);
+        }
+
+        let output_schema = Schema::new(output_fields)?; // This checks for duplicate columns
+
+        let output_columns = output_indices
+            .into_iter()
+            .map(|i| self.get_column(i).clone())
+            .collect::<Vec<_>>();
+
+        Ok(DataFrame::new(output_schema, output_columns)
+            .expect("Dataframe should be valid at this point."))
+    }
+
+    /// Get reference to a column at a particular index
+    ///
+    /// Callers are responsible for validating that the index is not
+    /// out of bounds.
+    fn get_column(&self, index: usize) -> &Column {
+        &self.columns[index]
     }
 }
 
