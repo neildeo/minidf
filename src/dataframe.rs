@@ -173,6 +173,25 @@ impl DataFrame {
         DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
     }
 
+    /// Return a new dataframe containing the requested columns.
+    ///
+    /// Columns are selected by name from any iterable collection of string-like
+    /// values, and appear in the output dataframe in the order requested by the
+    /// caller. The original dataframe is not modified.
+    ///
+    /// The returned dataframe owns its schema and columns. Selected fields preserve
+    /// their dtype and nullability metadata, and selected columns preserve their
+    /// values.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MiniDfError::EmptyColumnSelection`] if no columns are requested.
+    ///
+    /// Returns [`MiniDfError::ColumnNotFound`] if any requested column name does
+    /// not exist in the input dataframe.
+    ///
+    /// Returns [`MiniDfError::DuplicateColumnName`] if the requested columns would
+    /// produce duplicate names in the output dataframe.
     pub fn select(&self, columns: impl IntoIterator<Item = impl AsRef<str>>) -> Result<DataFrame> {
         // Build schema for output dataframe
         let input_schema = self.schema();
