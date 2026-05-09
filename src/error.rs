@@ -27,6 +27,10 @@ pub enum MiniDfError {
     NullabilityViolation {
         field_name: String,
     },
+    ColumnNotFound {
+        name: String,
+    },
+    EmptyColumnSelection,
 }
 
 impl Display for MiniDfError {
@@ -61,6 +65,8 @@ impl Display for MiniDfError {
                 f,
                 "Field {field_name} is declared as non-null but the provided column contains null values"
             ),
+            MiniDfError::ColumnNotFound { name } => write!(f, "Column {name} does not exist"),
+            MiniDfError::EmptyColumnSelection => write!(f, "Cannot select zero columns"),
         }
     }
 }

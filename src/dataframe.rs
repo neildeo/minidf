@@ -172,6 +172,10 @@ impl DataFrame {
 
         DataFrame::new(out_schema, out_columns).expect("Subset of valid dataframe should be valid")
     }
+
+    pub fn select(&self, columns: impl IntoIterator<Item = impl AsRef<str>>) -> Result<DataFrame> {
+        todo!()
+    }
 }
 
 impl Display for DataFrame {
