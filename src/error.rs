@@ -7,7 +7,7 @@ use crate::DataType;
 /// Error type for dataframe construction and validation failures.
 #[derive(Debug, PartialEq)]
 pub enum MiniDfError {
-    InvalidSchema {
+    DuplicateColumnName {
         duplicate_name: String,
     },
     FieldColumnCountMismatch {
@@ -32,7 +32,7 @@ pub enum MiniDfError {
 impl Display for MiniDfError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MiniDfError::InvalidSchema { duplicate_name } => write!(
+            MiniDfError::DuplicateColumnName { duplicate_name } => write!(
                 f,
                 "Schema has multiple fields with the same name: {}",
                 duplicate_name

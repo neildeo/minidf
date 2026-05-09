@@ -70,7 +70,7 @@ fn unique_fields(fields: &Vec<Field>) -> Result<()> {
 
     for field in fields {
         if field_set.contains(&field.column_name) {
-            return Err(MiniDfError::InvalidSchema {
+            return Err(MiniDfError::DuplicateColumnName {
                 duplicate_name: field.column_name.clone(),
             });
         }
@@ -150,7 +150,7 @@ mod tests {
         assert!(unique_fields(&fields).is_err_and(|e| {
             matches!(
                 e,
-                MiniDfError::InvalidSchema {
+                MiniDfError::DuplicateColumnName {
                     duplicate_name
                 } if duplicate_name == "col_1"
             )
