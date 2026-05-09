@@ -14,7 +14,7 @@ use crate::{MiniDfError, Result, column::Column, schema::Schema};
 ///
 /// Dataframe construction enforces the core invariants connecting schema
 /// metadata to physical column storage.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DataFrame {
     schema: Schema,
     columns: Vec<Column>,
@@ -174,7 +174,39 @@ impl DataFrame {
     }
 
     pub fn select(&self, columns: impl IntoIterator<Item = impl AsRef<str>>) -> Result<DataFrame> {
-        todo!()
+        // Build schema for output dataframe
+        let input_schema = self.schema();
+
+        let (output_fields, output_indices) = columns
+            .into_iter()
+            .map(|n| {
+                input_schema
+                    .get_field(n.as_ref())
+                    .map(|(f, i)| (f.clone(), i))
+            })
+            .collect::<Result<(Vec<_>, Vec<_>)>>()?;
+
+        if output_fields.is_empty() {
+            return Err(MiniDfError::EmptyColumnSelection);
+        }
+
+        let output_schema = Schema::new(output_fields)?; // This checks for duplicate columns
+
+        let output_columns = output_indices
+            .into_iter()
+            .map(|i| self.get_column(i).clone())
+            .collect::<Vec<_>>();
+
+        Ok(DataFrame::new(output_schema, output_columns)
+            .expect("Dataframe should be valid at this point."))
+    }
+
+    /// Get reference to a column at a particular index
+    ///
+    /// Callers are responsible for validating that the index is not
+    /// out of bounds.
+    fn get_column(&self, index: usize) -> &Column {
+        &self.columns[index]
     }
 }
 

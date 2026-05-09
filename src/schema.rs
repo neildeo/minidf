@@ -114,6 +114,32 @@ impl Schema {
     pub fn fields(&self) -> &[Field] {
         &self.fields
     }
+
+    /// Return the field with the requested column name, together with its position.
+    ///
+    /// This performs a name-based lookup over the schema fields and returns a
+    /// shared reference to the matching [`Field`] along with its zero-based index
+    /// in the schema. Field names are expected to be unique within a valid schema,
+    /// so at most one field should match.
+    ///
+    /// The returned index can be used to locate the corresponding column in a
+    /// dataframe's column storage, since columns do not themselves store names.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MiniDfError::ColumnNotFound`] if no field exists with the
+    /// requested name.
+    pub fn get_field(&self, name: &str) -> Result<(&Field, usize)> {
+        for (i, f) in self.fields().iter().enumerate() {
+            if f.name() == name {
+                return Ok((f, i));
+            }
+        }
+
+        Err(MiniDfError::ColumnNotFound {
+            name: name.to_string(),
+        })
+    }
 }
 
 #[cfg(test)]

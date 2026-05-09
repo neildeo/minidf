@@ -24,7 +24,7 @@ pub enum DataType {
 /// schema field.
 ///
 /// Null values are represented using `Option<T>` within each column variant.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Column {
     Int(Vec<Option<i64>>),
     Float(Vec<Option<f64>>),
