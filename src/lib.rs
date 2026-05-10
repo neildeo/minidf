@@ -17,6 +17,7 @@ mod column;
 mod dataframe;
 mod error;
 mod schema;
+mod value;
 
 pub use column::{Column, DataType};
 pub use dataframe::DataFrame;
