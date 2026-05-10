@@ -1,6 +1,6 @@
 use crate::DataType;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Value {
     Int(i64),
     Float(f64),
@@ -36,7 +36,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn value_variants_compare_by_value() {
+    fn value_variants_compare_structurally_by_value() {
         // Ints
         let v1 = Value::int(45);
         let v2 = Value::int(45);
@@ -44,8 +44,6 @@ mod tests {
 
         assert_eq!(v1, v2);
         assert_ne!(v1, v3);
-        assert!(v1.le(&v3));
-        assert!(v2.lt(&v3));
 
         // Floats
         let v4 = Value::float(1.2);
@@ -54,8 +52,6 @@ mod tests {
 
         assert_eq!(v4, v5);
         assert_ne!(v4, v6);
-        assert!(v4.le(&v6));
-        assert!(v5.lt(&v6));
 
         // Bools
         let v7 = Value::bool(false);
@@ -64,8 +60,6 @@ mod tests {
 
         assert_eq!(v7, v8);
         assert_ne!(v7, v9);
-        assert!(v7.le(&v9));
-        assert!(v8.lt(&v9));
 
         // Strings
         let v10 = Value::string("abc".to_string());
@@ -74,8 +68,6 @@ mod tests {
 
         assert_eq!(v10, v11);
         assert_ne!(v10, v12);
-        assert!(v10.le(&v12));
-        assert!(v11.lt(&v12));
     }
 
     #[test]
@@ -84,7 +76,7 @@ mod tests {
         let v2 = Value::float(1.0);
         let v3 = Value::bool(true);
         let v4 = Value::string("1".to_string());
-        let v5 = Value::Null;
+        let v5 = Value::null();
 
         assert_ne!(v1, v2);
         assert_ne!(v1, v3);
@@ -100,8 +92,8 @@ mod tests {
 
     #[test]
     fn null_values_are_structurally_equal() {
-        let v1 = Value::Null;
-        let v2 = Value::Null;
+        let v1 = Value::null();
+        let v2 = Value::null();
 
         assert_eq!(v1, v2);
     }
@@ -113,16 +105,16 @@ mod tests {
         let v3 = Value::bool(true);
         let v4 = Value::string("1".to_string());
 
-        assert_eq!(v1.dtype().unwrap(), DataType::Int);
-        assert_eq!(v2.dtype().unwrap(), DataType::Float);
-        assert_eq!(v3.dtype().unwrap(), DataType::Bool);
-        assert_eq!(v4.dtype().unwrap(), DataType::String);
+        assert_eq!(v1.dtype(), Some(DataType::Int));
+        assert_eq!(v2.dtype(), Some(DataType::Float));
+        assert_eq!(v3.dtype(), Some(DataType::Bool));
+        assert_eq!(v4.dtype(), Some(DataType::String));
     }
 
     #[test]
     fn null_reports_no_dtype() {
-        let v = Value::Null;
+        let v = Value::null();
 
-        assert_eq!(v.dtype(), None);
+        assert!(v.dtype().is_none());
     }
 }
