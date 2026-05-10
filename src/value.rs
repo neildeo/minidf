@@ -11,23 +11,33 @@ pub(crate) enum Value {
 
 impl Value {
     pub(crate) fn int(value: i64) -> Self {
-        todo!()
+        Value::Int(value)
     }
+
     pub(crate) fn float(value: f64) -> Self {
-        todo!()
+        Value::Float(value)
     }
+
     pub(crate) fn bool(value: bool) -> Self {
-        todo!()
+        Value::Bool(value)
     }
+
     pub(crate) fn string(value: String) -> Self {
-        todo!()
+        Value::String(value)
     }
+
     pub(crate) fn null() -> Self {
-        todo!()
+        Value::Null
     }
 
     pub(crate) fn dtype(&self) -> Option<DataType> {
-        todo!()
+        match self {
+            Value::Int(_) => Some(DataType::Int),
+            Value::Float(_) => Some(DataType::Float),
+            Value::Bool(_) => Some(DataType::Bool),
+            Value::String(_) => Some(DataType::String),
+            Value::Null => None,
+        }
     }
 }
 
