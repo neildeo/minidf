@@ -1,5 +1,29 @@
+//! Internal scalar value representation for expression construction and evaluation.
+//!
+//! This module defines `Value`, MiniDF's crate-internal representation of a
+//! single scalar payload. It is used by expression literals and, later, by
+//! expression evaluation.
+//!
+//! `Value` deliberately sits below the public dataframe API. It should not be
+//! treated as a public row value type or as a place to encode dataframe-level
+//! comparison, coercion, or null semantics.
+
 use crate::DataType;
 
+/// A scalar value used by MiniDF's internal expression machinery.
+///
+/// `Value` represents one dynamically typed scalar payload. It is distinct
+/// from `Column`, which stores many typed values, and from `DataType`, which
+/// describes schema-level types.
+///
+/// The main purpose of this type is to support literal expressions and, later,
+/// expression evaluation. It is crate-internal rather than part of the public
+/// dataframe API.
+///
+/// Equality for `Value` is structural Rust equality. In particular,
+/// `Value::Null == Value::Null` is true at this representation layer. SQL-like
+/// or dataframe-style null semantics belong in expression evaluation, not in
+/// `Value` itself.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Value {
     Int(i64),
@@ -10,26 +34,44 @@ pub(crate) enum Value {
 }
 
 impl Value {
+    /// Construct an integer scalar value.
     pub(crate) fn int(value: i64) -> Self {
         Value::Int(value)
     }
 
+    /// Construct a floating-point scalar value.
     pub(crate) fn float(value: f64) -> Self {
         Value::Float(value)
     }
 
+    /// Construct a boolean scalar value.
     pub(crate) fn bool(value: bool) -> Self {
         Value::Bool(value)
     }
 
+    /// Construct a string scalar value.
+    ///
+    /// The string payload is owned so that expression trees can own their literal
+    /// values independently of the caller.
     pub(crate) fn string(value: String) -> Self {
         Value::String(value)
     }
 
+    /// Construct a null scalar value.
+    ///
+    /// Null is represented explicitly as a scalar value, rather than as the absence
+    /// of a `Value`.
     pub(crate) fn null() -> Self {
         Value::Null
     }
 
+    /// Return the inherent datatype of this scalar value, if it has one.
+    ///
+    /// Non-null scalar values have an inherent datatype. `Value::Null` is
+    /// intentionally untyped, so this method returns `None` for null values.
+    ///
+    /// Contextual typing of null literals is handled later during expression
+    /// validation.
     pub(crate) fn dtype(&self) -> Option<DataType> {
         match self {
             Value::Int(_) => Some(DataType::Int),
@@ -46,7 +88,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn value_variants_compare_structurally_by_value() {
+    fn value_variants_have_structural_equality() {
         // Ints
         let v1 = Value::int(45);
         let v2 = Value::int(45);
