@@ -8,6 +8,9 @@
 //! treated as a public row value type or as a place to encode dataframe-level
 //! comparison, coercion, or null semantics.
 
+// Todo: remove once Value is used somewhere
+#![allow(dead_code)]
+
 use crate::DataType;
 
 /// A scalar value used by MiniDF's internal expression machinery.
