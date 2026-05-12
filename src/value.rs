@@ -72,6 +72,7 @@ impl Value {
     ///
     /// Contextual typing of null literals is handled later during expression
     /// validation.
+    #[allow(dead_code)]
     pub(crate) fn dtype(&self) -> Option<DataType> {
         match self {
             Value::Int(_) => Some(DataType::Int),

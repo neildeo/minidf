@@ -11,6 +11,7 @@ impl From<ExprKind> for Expr {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum ExprKind {
     Column {
@@ -42,44 +43,62 @@ pub trait IntoLiteral {
 
 impl IntoLiteral for i64 {
     fn into_literal_expr(self) -> Expr {
-        todo!()
+        ExprKind::Literal {
+            value: Value::int(self),
+        }
+        .into()
     }
 }
 
 impl IntoLiteral for f64 {
     fn into_literal_expr(self) -> Expr {
-        todo!()
+        ExprKind::Literal {
+            value: Value::float(self),
+        }
+        .into()
     }
 }
 
 impl IntoLiteral for bool {
     fn into_literal_expr(self) -> Expr {
-        todo!()
+        ExprKind::Literal {
+            value: Value::bool(self),
+        }
+        .into()
     }
 }
 
 impl IntoLiteral for String {
     fn into_literal_expr(self) -> Expr {
-        todo!()
+        ExprKind::Literal {
+            value: Value::string(self),
+        }
+        .into()
     }
 }
 
 impl IntoLiteral for &str {
     fn into_literal_expr(self) -> Expr {
-        todo!()
+        ExprKind::Literal {
+            value: Value::string(self.to_string()),
+        }
+        .into()
     }
 }
 
 pub fn col(name: impl Into<String>) -> Expr {
-    todo!()
+    ExprKind::Column { name: name.into() }.into()
 }
 
 pub fn lit(value: impl IntoLiteral) -> Expr {
-    todo!()
+    value.into_literal_expr()
 }
 
 pub fn null() -> Expr {
-    todo!("Construct a null literal expression")
+    ExprKind::Literal {
+        value: Value::null(),
+    }
+    .into()
 }
 
 #[cfg(test)]
