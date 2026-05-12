@@ -1,7 +1,18 @@
 use crate::value::Value;
 
-#[derive(Debug, PartialEq)]
-pub enum Expr {
+#[derive(Debug, Clone, PartialEq)]
+pub struct Expr {
+    expr: ExprKind,
+}
+
+impl From<ExprKind> for Expr {
+    fn from(value: ExprKind) -> Self {
+        Expr { expr: value }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum ExprKind {
     Column {
         name: String,
     },
@@ -19,22 +30,56 @@ pub enum Expr {
     },
 }
 
-#[derive(Debug, PartialEq)]
-enum UnaryOp {}
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum UnaryOp {}
 
-#[derive(Debug, PartialEq)]
-enum BinaryOp {}
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum BinaryOp {}
+
+pub trait IntoLiteral {
+    fn into_literal_expr(self) -> Expr;
+}
+
+impl IntoLiteral for i64 {
+    fn into_literal_expr(self) -> Expr {
+        todo!()
+    }
+}
+
+impl IntoLiteral for f64 {
+    fn into_literal_expr(self) -> Expr {
+        todo!()
+    }
+}
+
+impl IntoLiteral for bool {
+    fn into_literal_expr(self) -> Expr {
+        todo!()
+    }
+}
+
+impl IntoLiteral for String {
+    fn into_literal_expr(self) -> Expr {
+        todo!()
+    }
+}
+
+impl IntoLiteral for &str {
+    fn into_literal_expr(self) -> Expr {
+        todo!()
+    }
+}
 
 pub fn col(name: impl Into<String>) -> Expr {
     todo!()
 }
 
-pub fn lit(value: impl Into<Value>) -> Expr {
+pub fn lit(value: impl IntoLiteral) -> Expr {
     todo!()
 }
 
-pub fn null() -> Value {
-    todo!("Construct a null value")
+pub fn null() -> Expr {
+    todo!("Construct a null literal expression")
 }
 
 #[cfg(test)]
@@ -47,9 +92,10 @@ mod tests {
 
         assert_eq!(
             col_expr,
-            Expr::Column {
+            ExprKind::Column {
                 name: "some_column".to_string()
             }
+            .into()
         );
     }
 
@@ -59,9 +105,10 @@ mod tests {
 
         assert_eq!(
             lit_expr,
-            Expr::Literal {
+            ExprKind::Literal {
                 value: Value::Int(34)
             }
+            .into()
         );
     }
 
@@ -71,9 +118,10 @@ mod tests {
 
         assert_eq!(
             lit_expr,
-            Expr::Literal {
+            ExprKind::Literal {
                 value: Value::Float(99.98)
             }
+            .into()
         );
     }
 
@@ -83,9 +131,10 @@ mod tests {
 
         assert_eq!(
             lit_expr,
-            Expr::Literal {
+            ExprKind::Literal {
                 value: Value::Bool(false)
             }
+            .into()
         );
     }
 
@@ -95,16 +144,17 @@ mod tests {
 
         assert_eq!(
             lit_expr,
-            Expr::Literal {
+            ExprKind::Literal {
                 value: Value::String("abcde".to_string())
             }
+            .into()
         );
     }
 
     #[test]
     fn lit_null_constructs_null_literal_expression() {
-        let lit_expr = lit(null());
+        let lit_expr = null();
 
-        assert_eq!(lit_expr, Expr::Literal { value: Value::Null });
+        assert_eq!(lit_expr, ExprKind::Literal { value: Value::Null }.into());
     }
 }

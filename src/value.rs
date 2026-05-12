@@ -83,36 +83,6 @@ impl Value {
     }
 }
 
-impl From<i64> for Value {
-    fn from(value: i64) -> Self {
-        Value::int(value)
-    }
-}
-
-impl From<f64> for Value {
-    fn from(value: f64) -> Self {
-        Value::float(value)
-    }
-}
-
-impl From<bool> for Value {
-    fn from(value: bool) -> Self {
-        Value::bool(value)
-    }
-}
-
-impl From<String> for Value {
-    fn from(value: String) -> Self {
-        Value::string(value)
-    }
-}
-
-impl From<&str> for Value {
-    fn from(value: &str) -> Self {
-        Value::string(value.to_string())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
