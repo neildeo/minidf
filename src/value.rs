@@ -8,9 +8,6 @@
 //! treated as a public row value type or as a place to encode dataframe-level
 //! comparison, coercion, or null semantics.
 
-// Todo: remove once Value is used somewhere
-#![allow(dead_code)]
-
 use crate::DataType;
 
 /// A scalar value used by MiniDF's internal expression machinery.
@@ -83,6 +80,36 @@ impl Value {
             Value::String(_) => Some(DataType::String),
             Value::Null => None,
         }
+    }
+}
+
+impl From<i64> for Value {
+    fn from(value: i64) -> Self {
+        Value::int(value)
+    }
+}
+
+impl From<f64> for Value {
+    fn from(value: f64) -> Self {
+        Value::float(value)
+    }
+}
+
+impl From<bool> for Value {
+    fn from(value: bool) -> Self {
+        Value::bool(value)
+    }
+}
+
+impl From<String> for Value {
+    fn from(value: String) -> Self {
+        Value::string(value)
+    }
+}
+
+impl From<&str> for Value {
+    fn from(value: &str) -> Self {
+        Value::string(value.to_string())
     }
 }
 

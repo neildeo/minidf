@@ -16,6 +16,7 @@
 mod column;
 mod dataframe;
 mod error;
+mod expr;
 mod schema;
 mod value;
 
