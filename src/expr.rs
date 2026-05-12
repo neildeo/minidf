@@ -7,27 +7,36 @@ pub struct Expr {
 
 impl Expr {
     pub fn eq(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Eq, other)
     }
 
     pub fn neq(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Neq, other)
     }
 
     pub fn gt(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Gt, other)
     }
 
     pub fn gte(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Gte, other)
     }
 
     pub fn lt(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Lt, other)
     }
 
     pub fn lte(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Lte, other)
+    }
+
+    fn binary(self, op: BinaryOp, other: Expr) -> Expr {
+        ExprKind::Binary {
+            operation: op,
+            left_operand: Box::new(self),
+            right_operand: Box::new(other),
+        }
+        .into()
     }
 }
 
