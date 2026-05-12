@@ -5,6 +5,32 @@ pub struct Expr {
     expr: ExprKind,
 }
 
+impl Expr {
+    pub fn eq(self, other: Expr) -> Expr {
+        todo!()
+    }
+
+    pub fn neq(self, other: Expr) -> Expr {
+        todo!()
+    }
+
+    pub fn gt(self, other: Expr) -> Expr {
+        todo!()
+    }
+
+    pub fn gte(self, other: Expr) -> Expr {
+        todo!()
+    }
+
+    pub fn lt(self, other: Expr) -> Expr {
+        todo!()
+    }
+
+    pub fn lte(self, other: Expr) -> Expr {
+        todo!()
+    }
+}
+
 impl From<ExprKind> for Expr {
     fn from(value: ExprKind) -> Self {
         Expr { expr: value }
@@ -35,7 +61,14 @@ pub(crate) enum ExprKind {
 pub(crate) enum UnaryOp {}
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum BinaryOp {}
+pub(crate) enum BinaryOp {
+    Eq,
+    Neq,
+    Lt,
+    Lte,
+    Gt,
+    Gte,
+}
 
 pub trait IntoLiteral {
     fn into_literal_expr(self) -> Expr;
@@ -175,5 +208,70 @@ mod tests {
         let lit_expr = null();
 
         assert_eq!(lit_expr, ExprKind::Literal { value: Value::Null }.into());
+    }
+
+    #[test]
+    fn comparison_methods_build_expected_binary_operators() {
+        let expr_eq = col("a").eq(lit(32));
+        let expr_neq = col("a").neq(lit(32));
+        let expr_lt = col("a").lt(lit(32));
+        let expr_lte = col("a").lte(lit(32));
+        let expr_gt = col("a").gt(lit(32));
+        let expr_gte = col("a").gte(lit(32));
+
+        assert_eq!(
+            expr_eq,
+            ExprKind::Binary {
+                operation: BinaryOp::Eq,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
+        assert_eq!(
+            expr_neq,
+            ExprKind::Binary {
+                operation: BinaryOp::Neq,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
+        assert_eq!(
+            expr_lt,
+            ExprKind::Binary {
+                operation: BinaryOp::Lt,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
+        assert_eq!(
+            expr_lte,
+            ExprKind::Binary {
+                operation: BinaryOp::Lte,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
+        assert_eq!(
+            expr_gt,
+            ExprKind::Binary {
+                operation: BinaryOp::Gt,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
+        assert_eq!(
+            expr_gte,
+            ExprKind::Binary {
+                operation: BinaryOp::Gte,
+                left_operand: Box::new(col("a")),
+                right_operand: Box::new(lit(32))
+            }
+            .into()
+        );
     }
 }
