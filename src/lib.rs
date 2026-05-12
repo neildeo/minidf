@@ -23,7 +23,7 @@ mod value;
 pub use column::{Column, DataType};
 pub use dataframe::DataFrame;
 pub use error::{MiniDfError, Result};
-pub use expr::{Expr, col, lit, null};
+pub use expr::{Expr, IntoLiteral, col, lit, null};
 pub use schema::{Field, Schema};
 
 #[cfg(test)]
