@@ -8,9 +8,6 @@
 //! treated as a public row value type or as a place to encode dataframe-level
 //! comparison, coercion, or null semantics.
 
-// Todo: remove once Value is used somewhere
-#![allow(dead_code)]
-
 use crate::DataType;
 
 /// A scalar value used by MiniDF's internal expression machinery.
@@ -75,6 +72,7 @@ impl Value {
     ///
     /// Contextual typing of null literals is handled later during expression
     /// validation.
+    #[allow(dead_code)]
     pub(crate) fn dtype(&self) -> Option<DataType> {
         match self {
             Value::Int(_) => Some(DataType::Int),
