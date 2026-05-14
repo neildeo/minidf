@@ -103,10 +103,20 @@ impl Expr {
         self.unary(UnaryOp::Not)
     }
 
+    /// Construct an `is null` expression.
+    ///
+    /// This method builds a symbolic unary expression. It does not inspect
+    /// schema nullability, check whether the operand can contain nulls, or
+    /// evaluate data. Null-check validation and evaluation happen later.
     pub fn is_null(self) -> Expr {
         self.unary(UnaryOp::IsNull)
     }
 
+    /// Construct an `is not null` expression.
+    ///
+    /// This method builds a symbolic unary expression. It does not inspect
+    /// schema nullability, check whether the operand can contain nulls, or
+    /// evaluate data. Null-check validation and evaluation happen later.
     pub fn is_not_null(self) -> Expr {
         self.unary(UnaryOp::IsNotNull)
     }
