@@ -104,11 +104,11 @@ impl Expr {
     }
 
     pub fn is_null(self) -> Expr {
-        todo!()
+        self.unary(UnaryOp::IsNull)
     }
 
     pub fn is_not_null(self) -> Expr {
-        todo!()
+        self.unary(UnaryOp::IsNotNull)
     }
 
     fn unary(self, op: UnaryOp) -> Expr {
