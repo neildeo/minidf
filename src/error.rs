@@ -73,5 +73,5 @@ impl Display for MiniDfError {
 
 impl Error for MiniDfError {}
 
-/// Crate-local result type using [`MinidfError`].
+/// Crate-local result type using [`MiniDfError`].
 pub type Result<T> = std::result::Result<T, MiniDfError>;
