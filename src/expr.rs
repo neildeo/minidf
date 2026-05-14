@@ -103,6 +103,14 @@ impl Expr {
         self.unary(UnaryOp::Not)
     }
 
+    pub fn is_null(self) -> Expr {
+        todo!()
+    }
+
+    pub fn is_not_null(self) -> Expr {
+        todo!()
+    }
+
     fn unary(self, op: UnaryOp) -> Expr {
         ExprKind::Unary {
             operation: op,
@@ -149,6 +157,8 @@ pub(crate) enum ExprKind {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum UnaryOp {
     Not,
+    IsNull,
+    IsNotNull,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -449,6 +459,34 @@ mod tests {
                     }
                     .into()
                 )
+            }
+            .into()
+        )
+    }
+
+    #[test]
+    fn is_null_builds_correct_expression() {
+        let expr = col("blob").is_null();
+
+        assert_eq!(
+            expr,
+            ExprKind::Unary {
+                operation: UnaryOp::IsNull,
+                operand: Box::new(col("blob"))
+            }
+            .into()
+        )
+    }
+
+    #[test]
+    fn is_not_null_builds_correct_expression() {
+        let expr = col("blob").is_not_null();
+
+        assert_eq!(
+            expr,
+            ExprKind::Unary {
+                operation: UnaryOp::IsNotNull,
+                operand: Box::new(col("blob"))
             }
             .into()
         )
