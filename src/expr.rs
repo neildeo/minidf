@@ -73,6 +73,44 @@ impl Expr {
         self.binary(BinaryOp::Lte, other)
     }
 
+    /// Construct a logical AND expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand evaluates to a boolean value, and it does not
+    /// evaluate data. Boolean type checking happens later during expression
+    /// validation.
+    pub fn and(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::And, other)
+    }
+
+    /// Construct a logical OR expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand evaluates to a boolean value, and it does not
+    /// evaluate data. Boolean type checking happens later during expression
+    /// validation.
+    pub fn or(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::Or, other)
+    }
+
+    /// Construct a logical NOT expression.
+    ///
+    /// This method builds a symbolic unary expression. It does not validate
+    /// that the operand evaluates to a boolean value, and it does not evaluate
+    /// data. Boolean type checking happens later during expression validation.
+    #[allow(clippy::should_implement_trait)]
+    pub fn not(self) -> Expr {
+        self.unary(UnaryOp::Not)
+    }
+
+    fn unary(self, op: UnaryOp) -> Expr {
+        ExprKind::Unary {
+            operation: op,
+            operand: Box::new(self),
+        }
+        .into()
+    }
+
     fn binary(self, op: BinaryOp, other: Expr) -> Expr {
         ExprKind::Binary {
             operation: op,
@@ -89,7 +127,6 @@ impl From<ExprKind> for Expr {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum ExprKind {
     Column {
@@ -110,7 +147,9 @@ pub(crate) enum ExprKind {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum UnaryOp {}
+pub(crate) enum UnaryOp {
+    Not,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum BinaryOp {
@@ -120,6 +159,8 @@ pub(crate) enum BinaryOp {
     Lte,
     Gt,
     Gte,
+    And,
+    Or,
 }
 
 /// Convert a Rust scalar value into a MiniDF literal expression.
@@ -344,5 +385,72 @@ mod tests {
             }
             .into()
         );
+    }
+
+    #[test]
+    fn boolean_combinators_build_expected_expression_operators() {
+        let and_expr = col("bangers").and(col("mash"));
+        let or_expr = col("hot").or(col("cold"));
+
+        assert_eq!(
+            and_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::And,
+                left_operand: Box::new(col("bangers")),
+                right_operand: Box::new(col("mash"))
+            }
+            .into()
+        );
+        assert_eq!(
+            or_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Or,
+                left_operand: Box::new(col("hot")),
+                right_operand: Box::new(col("cold"))
+            }
+            .into()
+        );
+    }
+
+    #[test]
+    fn boolean_combinators_preserve_nested_expression_grouping() {
+        let expr = col("omelette").or(col("eggs").and(col("bacon")));
+
+        assert_eq!(
+            expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Or,
+                left_operand: Box::new(col("omelette")),
+                right_operand: Box::new(
+                    ExprKind::Binary {
+                        operation: BinaryOp::And,
+                        left_operand: Box::new(col("eggs")),
+                        right_operand: Box::new(col("bacon"))
+                    }
+                    .into()
+                )
+            }
+            .into()
+        )
+    }
+
+    #[test]
+    fn not_builds_unary_expression() {
+        let base_expr = col("sausage");
+        let not_expr = base_expr.not();
+
+        assert_eq!(
+            not_expr,
+            ExprKind::Unary {
+                operation: UnaryOp::Not,
+                operand: Box::new(
+                    ExprKind::Column {
+                        name: "sausage".to_string()
+                    }
+                    .into()
+                )
+            }
+            .into()
+        )
     }
 }
