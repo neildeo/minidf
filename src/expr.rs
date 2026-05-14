@@ -74,15 +74,23 @@ impl Expr {
     }
 
     pub fn and(self, other: Expr) -> Expr {
-        todo!("Boolean AND")
+        self.binary(BinaryOp::And, other)
     }
 
     pub fn or(self, other: Expr) -> Expr {
-        todo!("Boolean OR")
+        self.binary(BinaryOp::Or, other)
     }
 
     pub fn not(self) -> Expr {
-        todo!("Boolean NOT")
+        self.unary(UnaryOp::Not)
+    }
+
+    fn unary(self, op: UnaryOp) -> Expr {
+        ExprKind::Unary {
+            operation: op,
+            operand: Box::new(self),
+        }
+        .into()
     }
 
     fn binary(self, op: BinaryOp, other: Expr) -> Expr {
@@ -101,7 +109,6 @@ impl From<ExprKind> for Expr {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum ExprKind {
     Column {
