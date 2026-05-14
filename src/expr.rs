@@ -73,6 +73,18 @@ impl Expr {
         self.binary(BinaryOp::Lte, other)
     }
 
+    pub fn and(self, other: Expr) -> Expr {
+        todo!("Boolean AND")
+    }
+
+    pub fn or(self, other: Expr) -> Expr {
+        todo!("Boolean OR")
+    }
+
+    pub fn not(self) -> Expr {
+        todo!("Boolean NOT")
+    }
+
     fn binary(self, op: BinaryOp, other: Expr) -> Expr {
         ExprKind::Binary {
             operation: op,
@@ -110,7 +122,9 @@ pub(crate) enum ExprKind {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum UnaryOp {}
+pub(crate) enum UnaryOp {
+    Not,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum BinaryOp {
@@ -120,6 +134,8 @@ pub(crate) enum BinaryOp {
     Lte,
     Gt,
     Gte,
+    And,
+    Or,
 }
 
 /// Convert a Rust scalar value into a MiniDF literal expression.
@@ -344,5 +360,72 @@ mod tests {
             }
             .into()
         );
+    }
+
+    #[test]
+    fn boolean_combinators_build_expected_expression_operators() {
+        let and_expr = col("bangers").and(col("mash"));
+        let or_expr = col("hot").or(col("cold"));
+
+        assert_eq!(
+            and_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::And,
+                left_operand: Box::new(col("bangers")),
+                right_operand: Box::new(col("mash"))
+            }
+            .into()
+        );
+        assert_eq!(
+            or_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Or,
+                left_operand: Box::new(col("hot")),
+                right_operand: Box::new(col("cold"))
+            }
+            .into()
+        );
+    }
+
+    #[test]
+    fn boolean_combinators_preserve_nested_expression_grouping() {
+        let expr = col("omelette").or(col("eggs").and(col("bacon")));
+
+        assert_eq!(
+            expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Or,
+                left_operand: Box::new(col("omelette")),
+                right_operand: Box::new(
+                    ExprKind::Binary {
+                        operation: BinaryOp::And,
+                        left_operand: Box::new(col("eggs")),
+                        right_operand: Box::new(col("bacon"))
+                    }
+                    .into()
+                )
+            }
+            .into()
+        )
+    }
+
+    #[test]
+    fn not_builds_unary_expression() {
+        let base_expr = col("sausage");
+        let not_expr = base_expr.not();
+
+        assert_eq!(
+            not_expr,
+            ExprKind::Unary {
+                operation: UnaryOp::Not,
+                operand: Box::new(
+                    ExprKind::Column {
+                        name: "sausage".to_string()
+                    }
+                    .into()
+                )
+            }
+            .into()
+        )
     }
 }
