@@ -73,14 +73,32 @@ impl Expr {
         self.binary(BinaryOp::Lte, other)
     }
 
+    /// Construct a logical AND expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand evaluates to a boolean value, and it does not
+    /// evaluate data. Boolean type checking happens later during expression
+    /// validation.
     pub fn and(self, other: Expr) -> Expr {
         self.binary(BinaryOp::And, other)
     }
 
+    /// Construct a logical OR expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand evaluates to a boolean value, and it does not
+    /// evaluate data. Boolean type checking happens later during expression
+    /// validation.
     pub fn or(self, other: Expr) -> Expr {
         self.binary(BinaryOp::Or, other)
     }
 
+    /// Construct a logical NOT expression.
+    ///
+    /// This method builds a symbolic unary expression. It does not validate
+    /// that the operand evaluates to a boolean value, and it does not evaluate
+    /// data. Boolean type checking happens later during expression validation.
+    #[allow(clippy::should_implement_trait)]
     pub fn not(self) -> Expr {
         self.unary(UnaryOp::Not)
     }
