@@ -121,6 +121,47 @@ impl Expr {
         self.unary(UnaryOp::IsNotNull)
     }
 
+    /// Construct an addition expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
+    #[allow(clippy::should_implement_trait)]
+    pub fn add(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::Add, other)
+    }
+
+    /// Construct a subtraction expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
+    #[allow(clippy::should_implement_trait)]
+    pub fn sub(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::Sub, other)
+    }
+
+    /// Construct a multiplication expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
+    #[allow(clippy::should_implement_trait)]
+    pub fn mul(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::Mul, other)
+    }
+
+    /// Construct a division expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, choose integer-versus-floating division
+    /// semantics, propagate nulls, or evaluate data. Arithmetic validation and
+    /// evaluation happen later.
+    #[allow(clippy::should_implement_trait)]
+    pub fn div(self, other: Expr) -> Expr {
+        self.binary(BinaryOp::Div, other)
+    }
+
     fn unary(self, op: UnaryOp) -> Expr {
         ExprKind::Unary {
             operation: op,
@@ -181,6 +222,10 @@ pub(crate) enum BinaryOp {
     Gte,
     And,
     Or,
+    Add,
+    Sub,
+    Mul,
+    Div,
 }
 
 /// Convert a Rust scalar value into a MiniDF literal expression.
@@ -497,6 +542,76 @@ mod tests {
             ExprKind::Unary {
                 operation: UnaryOp::IsNotNull,
                 operand: Box::new(col("blob"))
+            }
+            .into()
+        )
+    }
+
+    #[test]
+    fn arithmetic_operators_build_expected_expression_operators() {
+        let add_expr = col("bangers").add(col("mash"));
+        let sub_expr = col("hot").sub(lit(1.0));
+        let mul_expr = col("whisky").mul(lit(true));
+        let div_expr = lit(3.0).div(lit(2));
+
+        assert_eq!(
+            add_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Add,
+                left_operand: Box::new(col("bangers")),
+                right_operand: Box::new(col("mash"))
+            }
+            .into()
+        );
+
+        assert_eq!(
+            sub_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Sub,
+                left_operand: Box::new(col("hot")),
+                right_operand: Box::new(lit(1.))
+            }
+            .into()
+        );
+
+        assert_eq!(
+            mul_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Mul,
+                left_operand: Box::new(col("whisky")),
+                right_operand: Box::new(lit(true))
+            }
+            .into()
+        );
+
+        assert_eq!(
+            div_expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Div,
+                left_operand: Box::new(lit(3.0)),
+                right_operand: Box::new(lit(2))
+            }
+            .into()
+        );
+    }
+
+    #[test]
+    fn arithmetic_operators_preserve_nested_expression_grouping() {
+        let expr = col("omelette").mul(col("eggs").sub(col("bacon")));
+
+        assert_eq!(
+            expr,
+            ExprKind::Binary {
+                operation: BinaryOp::Mul,
+                left_operand: Box::new(col("omelette")),
+                right_operand: Box::new(
+                    ExprKind::Binary {
+                        operation: BinaryOp::Sub,
+                        left_operand: Box::new(col("eggs")),
+                        right_operand: Box::new(col("bacon"))
+                    }
+                    .into()
+                )
             }
             .into()
         )
