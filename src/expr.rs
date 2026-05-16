@@ -121,20 +121,24 @@ impl Expr {
         self.unary(UnaryOp::IsNotNull)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Add, other)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Sub, other)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn mul(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Mul, other)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn div(self, other: Expr) -> Expr {
-        todo!()
+        self.binary(BinaryOp::Div, other)
     }
 
     fn unary(self, op: UnaryOp) -> Expr {
