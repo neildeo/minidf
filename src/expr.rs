@@ -121,21 +121,42 @@ impl Expr {
         self.unary(UnaryOp::IsNotNull)
     }
 
+    /// Construct an addition expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
     #[allow(clippy::should_implement_trait)]
     pub fn add(self, other: Expr) -> Expr {
         self.binary(BinaryOp::Add, other)
     }
 
+    /// Construct a subtraction expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
     #[allow(clippy::should_implement_trait)]
     pub fn sub(self, other: Expr) -> Expr {
         self.binary(BinaryOp::Sub, other)
     }
 
+    /// Construct a multiplication expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, perform type coercion, propagate nulls,
+    /// or evaluate data. Arithmetic validation and evaluation happen later.
     #[allow(clippy::should_implement_trait)]
     pub fn mul(self, other: Expr) -> Expr {
         self.binary(BinaryOp::Mul, other)
     }
 
+    /// Construct a division expression.
+    ///
+    /// This method builds a symbolic binary expression. It does not validate
+    /// that either operand is numeric, choose integer-versus-floating division
+    /// semantics, propagate nulls, or evaluate data. Arithmetic validation and
+    /// evaluation happen later.
     #[allow(clippy::should_implement_trait)]
     pub fn div(self, other: Expr) -> Expr {
         self.binary(BinaryOp::Div, other)
