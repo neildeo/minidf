@@ -7,7 +7,7 @@
 //! names, check datatypes, or compute values. Those steps happen later during
 //! expression validation and evaluation.
 
-use crate::value::Value;
+use crate::{DataType, Schema, error::Result, value::Value};
 
 /// A symbolic expression used to describe dataframe computations.
 ///
@@ -309,6 +309,42 @@ pub fn null() -> Expr {
         value: Value::null(),
     }
     .into()
+}
+
+struct ValidatedExpr {
+    expr: ExprKind,
+    output: ExprOutput,
+}
+
+fn validate_against_schema(expr: Expr, schema: &Schema) -> Result<ValidatedExpr> {
+    let partial_expr = partially_validate_against_schema(expr, schema)?;
+    resolve_data_types(partial_expr)
+}
+
+struct ExprOutput {
+    dtype: DataType,
+    nullable: bool,
+}
+
+struct PartialExprOutput {
+    dtype: Option<DataType>,
+    nullable: bool,
+}
+
+struct PartiallyValidatedExpr {
+    expr: ExprKind,
+    output: PartialExprOutput,
+}
+
+fn partially_validate_against_schema(
+    expr: Expr,
+    schema: &Schema,
+) -> Result<PartiallyValidatedExpr> {
+    todo!()
+}
+
+fn resolve_data_types(partial_expr: PartiallyValidatedExpr) -> Result<ValidatedExpr> {
+    todo!()
 }
 
 #[cfg(test)]
