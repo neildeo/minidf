@@ -21,7 +21,7 @@ use crate::{DataType, Schema, error::Result, value::Value};
 /// not look up the `age` column or compute a boolean result.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Expr {
-    expr: ExprKind,
+    expr: ExprKind<Expr>,
 }
 
 impl Expr {
@@ -180,14 +180,14 @@ impl Expr {
     }
 }
 
-impl From<ExprKind> for Expr {
-    fn from(value: ExprKind) -> Self {
+impl From<ExprKind<Expr>> for Expr {
+    fn from(value: ExprKind<Expr>) -> Self {
         Expr { expr: value }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum ExprKind {
+pub(crate) enum ExprKind<Node> {
     Column {
         name: String,
     },
@@ -196,12 +196,12 @@ pub(crate) enum ExprKind {
     },
     Unary {
         operation: UnaryOp,
-        operand: Box<Expr>,
+        operand: Box<Node>,
     },
     Binary {
         operation: BinaryOp,
-        left_operand: Box<Expr>,
-        right_operand: Box<Expr>,
+        left_operand: Box<Node>,
+        right_operand: Box<Node>,
     },
 }
 
@@ -312,7 +312,7 @@ pub fn null() -> Expr {
 }
 
 struct ValidatedExpr {
-    expr: ExprKind,
+    expr: ExprKind<ValidatedExpr>,
     output: ExprOutput,
 }
 
@@ -332,7 +332,7 @@ struct PartialExprOutput {
 }
 
 struct PartiallyValidatedExpr {
-    expr: ExprKind,
+    expr: ExprKind<PartiallyValidatedExpr>,
     output: PartialExprOutput,
 }
 
